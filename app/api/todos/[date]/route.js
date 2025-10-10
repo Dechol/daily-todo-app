@@ -4,7 +4,7 @@ import List from "@/models/List";
 // GET /api/todos/[date]
 export async function GET(req, { params }) {
   await connectDB();
-  const { date } = params;
+  const { date } = await params;
   let list = await List.findOne({ date });
   if (!list) {
     list = await List.create({ date, todos: [] });
@@ -29,7 +29,7 @@ export async function POST(req, { params }) {
 // PATCH /api/todos/[date]
 export async function PATCH(req, { params }) {
   await connectDB();
-  const { date } = params;
+  const { date } = await params;
   const { todoId } = await req.json();
 
   const list = await List.findOne({ date });
