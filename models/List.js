@@ -6,6 +6,11 @@ const todoSchema = new mongoose.Schema({
 });
 
 const todoListSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   date: { type: String, required: true }, // e.g. "2025-10-08"
   todos: [todoSchema],
 });

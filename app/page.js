@@ -1,10 +1,23 @@
 "use client";
 import TodoList from "@/components/TodoList";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
+
+  // when user loads app
+  // useEffect(() => {
+  //   let guestId = localStorage.getItem("guestId");
+  //   if (!guestId) {
+  //     fetch("/api/auth/guest", { method: "POST" })
+  //       .then(res => res.json())
+  //       .then(data => localStorage.setItem("guestId", data.anonId));
+  //   }
+
+  // }, []);
+
+
 
   function changeDate(offset) {
     const d = new Date(selectedDate);

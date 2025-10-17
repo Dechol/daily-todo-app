@@ -11,8 +11,16 @@ export default function TodoList({ date }) {
   useEffect(() => {
     async function fetchTodos() {
       setLoading(true);
-      const res = await fetch(`/api/todos/${date}`);
+      const res = await fetch(`/api/todos/${date}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-anon-id": localStorage.getItem("guestId"),
+        },
+      });
       const data = await res.json();
+      console.log(data)
+      console.log(data.todos)
+
       setTodos(data.todos || []);
       setLoading(false);
     }
@@ -24,9 +32,14 @@ export default function TodoList({ date }) {
     if (!input.trim()) return;
     const res = await fetch(`/api/todos/${date}`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-anon-id": localStorage.getItem("guestId"),
+      },
       body: JSON.stringify({ text: input }),
     });
     const data = await res.json();
+    console.log(data)
     setTodos(data.todos);
     setInput("");
   }
@@ -37,6 +50,7 @@ export default function TodoList({ date }) {
       body: JSON.stringify({ todoId: id }),
     });
     const data = await res.json();
+    console.log(data)
     setTodos(data.todos);
   }
 
