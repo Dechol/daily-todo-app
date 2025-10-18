@@ -6,19 +6,6 @@ export default function HomePage() {
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
 
-  // when user loads app
-  // useEffect(() => {
-  //   let guestId = localStorage.getItem("guestId");
-  //   if (!guestId) {
-  //     fetch("/api/auth/guest", { method: "POST" })
-  //       .then(res => res.json())
-  //       .then(data => localStorage.setItem("guestId", data.anonId));
-  //   }
-
-  // }, []);
-
-
-
   function changeDate(offset) {
     const d = new Date(selectedDate);
     d.setDate(d.getDate() + offset);
@@ -28,7 +15,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900 p-4">
       <div className="max-w-lg mx-auto mt-10 bg-white shadow-lg rounded-2xl p-6">
-        <h1 className="text-3xl font-bold text-center mb-6">🗓 Daily Todo List</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">🗓 Daily todo list</h1>
 
         {/* Date controls */}
         <div className="flex items-center justify-between mb-4">
