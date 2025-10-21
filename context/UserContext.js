@@ -20,9 +20,7 @@ export function UserProvider({ children }) {
         });
         
         const data = await res.json();
-        
-        console.log(data)
-
+        // console.log(data)
 
         if (data?.user?.anonId) {
           localStorage.setItem("dailysGuestId", data.user.anonId);
