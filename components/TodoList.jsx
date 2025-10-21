@@ -18,8 +18,8 @@ export default function TodoList({ date }) {
         },
       });
       const data = await res.json();
-      console.log(data)
-      console.log(data.todos)
+      // console.log(data)
+      // console.log(data.todos)
 
       setTodos(data.todos || []);
       setLoading(false);

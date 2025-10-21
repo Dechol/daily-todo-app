@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import GuestInit from "@/components/GuestInit";
+import { UserProvider, useUser } from "@/context/UserContext";
+import Nav from "@/components/Nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,25 +23,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} >
+        
+        <UserProvider >
+          <Nav />
 
-        <header className="flex justify-between items-center p-4 bg-gray-50">
-          {/* Left side: anonId (dev only) */}
-          <div id="anon-id" className="text-xs text-gray-500 font-mono"></div>
+          {/* <GuestInit /> */}
 
-          {/* Right side: Sign In */}
-          <Link
-            href="/signin"
-            className="px-3 py-1 text-sm bg-white text-black rounded hover:bg-blue-400 transition"
-          >
-            Sign In
-          </Link>
-        </header>
-        <GuestInit />
-
-        {children}
+          {children}
+        </UserProvider>
       </body>
     </html>
   );

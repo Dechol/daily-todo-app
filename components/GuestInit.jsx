@@ -6,15 +6,16 @@ export default function GuestInit() {
   const [anonId, setAnonId] = useState(null);
 
   useEffect(() => {
-    let stored = localStorage.getItem("guestId");
+    let stored = localStorage.getItem("dailysGuestId");
 
     async function initGuest() {
       if (!stored) {
         const res = await fetch("/api/auth/guest", { method: "POST" });
         const data = await res.json();
-        localStorage.setItem("guestId", data.anonId);
+        localStorage.setItem("dailysGuestId", data.anonId);
         stored = data.anonId;
       }
+      
       setAnonId(stored);
       const el = document.getElementById("anon-id");
       if (el) el.textContent = `Guest ID: ${stored}`;
