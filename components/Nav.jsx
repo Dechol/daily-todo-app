@@ -8,8 +8,21 @@ export default function Nav(){
     const {user, loading} = useUser()
     console.log(user)
 
+    async function logout() {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+      if (data.status === "logged_out") {
+        // Optionally reload the page or redirect
+        window.location.reload();
+      }
+    }
+
     if(loading) return <>loading...</>
 
+    // Guest user 
     if(user.isGuest){ 
         return (
           <header className="flex justify-between items-center p-4 bg-gray-50">
@@ -40,21 +53,19 @@ export default function Nav(){
 
 
 
-
+    // User logged in 
     return(
           <header className="flex justify-between items-center p-4 bg-gray-50">
             {/* Left side: anonId (dev only) */}
             <div id="anon-id" className="text-xs text-gray-500 font-mono">Welcome back, {user.email}</div>
 
             {/* Right side: Sign In */}
-            <div>
-            <Link
-              href="/signin"
-              className="px-3 py-1 text-sm bg-white text-black rounded hover:bg-blue-400 transition"
-              >
-              Sign Out
-            </Link>
-            </div>
+            <button
+              onClick={logout}
+              className="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+            >
+              Log out
+            </button>
           </header>
     )
 
