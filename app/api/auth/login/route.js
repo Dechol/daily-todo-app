@@ -7,11 +7,15 @@ import List from "@/models/List";
 
 export async function POST(req) {
   await connectDB();
-
   const { email, password } = await req.json();
-  const cookieStore = cookies();
-  const guestId = await cookieStore.get("dailysGuestId")?.value;
-  console.log("hereee", guestId)
+
+  if (!email || !password) {
+    return Response.json({ error: "Missing email or password" }, { status: 400 });
+  }
+
+  const cookieStore = await cookies();
+  const guestId = cookieStore.get("dailysGuestId")?.value;
+  // console.log("hereee", guestId)
 
   // 1️⃣ Find user
   const user = await User.findOne({ email });

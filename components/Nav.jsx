@@ -60,11 +60,8 @@ export default function Nav(){
             <div id="anon-id" className="text-xs text-gray-500 font-mono">Welcome back, {user.email}</div>
 
             {/* Right side: Sign In */}
-            <button
-              onClick={logout}
-              className="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-            >
-              Log out
+            <button onClick={logout} className="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700" > 
+              Log out 
             </button>
           </header>
     )

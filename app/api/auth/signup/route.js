@@ -31,6 +31,7 @@ export async function POST(req) {
 
     // Create new user from scratch (if no guest found)
     user = new User();
+    console.log("new user created")
   }
 
   // Hash password

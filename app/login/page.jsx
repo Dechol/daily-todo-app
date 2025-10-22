@@ -21,8 +21,9 @@ export default function LoginPage() {
     const data = await res.json();
 
     if (res.ok) {
-      setStatus("✅ Account created!");
-      console.log("User upgraded:", data.user);
+      localStorage.setItem("dailysGuestId", data.user.anonId);
+      setStatus("✅ Logged in!");
+      console.log("User Logged in:", data.user);
     } else {
       setStatus(`❌ ${data.error}`);
     }

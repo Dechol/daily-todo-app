@@ -14,8 +14,9 @@ export async function POST(req) {
   const { localGuestId } = await req.json()
   console.log("localGuestId", localGuestId)
 
-  const guestId = cookieGuestId || localGuestId;
-    console.log("guestId", guestId)
+  // const guestId = cookieGuestId || localGuestId;
+  const guestId = localGuestId;
+  console.log("guestId", guestId)
 
 
   // CASE 1: Returning guest

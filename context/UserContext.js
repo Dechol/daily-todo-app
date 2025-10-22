@@ -12,6 +12,7 @@ export function UserProvider({ children }) {
     const initUser = async () => {
       try {
         const localGuestId = localStorage.getItem("dailysGuestId");
+        console.log(localGuestId)
         
         const res = await fetch("/api/auth/guest", {
             method: "POST",
