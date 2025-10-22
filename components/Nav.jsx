@@ -39,10 +39,10 @@ export default function Nav(){
               Sign Up
             </Link>
             <Link
-              href="/signin"
+              href="/login"
               className="px-3 py-1 text-sm bg-white text-black rounded hover:bg-blue-400 transition"
               >
-              Sign In
+              Log In
             </Link>
             </div>
           </header>

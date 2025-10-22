@@ -38,7 +38,7 @@ export async function POST(req) {
 
   // Upgrade guest → full user
   user.email = email;
-  user.password = hashedPassword;
+  user.passwordHash = hashedPassword;
   user.isGuest = false;
   await user.save();
 
