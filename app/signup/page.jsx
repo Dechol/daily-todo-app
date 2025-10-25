@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useUser } from "@/context/UserContext";
 
 export default function SignUpPage() {
-  const { user, loading } = useUser();
+  const { user, setUser, loading } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
@@ -23,6 +23,7 @@ export default function SignUpPage() {
     if (res.ok) {
       setStatus("✅ Account created!");
       console.log("User upgraded:", data.user);
+      setUser(data.user)
     } else {
       setStatus(`❌ ${data.error}`);
     }

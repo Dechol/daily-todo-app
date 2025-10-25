@@ -12,10 +12,13 @@ export default function Nav(){
       const res = await fetch("/api/auth/logout", {
         method: "POST",
       });
-
+      
       const data = await res.json();
+      console.log("data", data)
+
       if (data.status === "logged_out") {
         // Optionally reload the page or redirect
+        localStorage.removeItem("dailysGuestId")
         window.location.reload();
       }
     }

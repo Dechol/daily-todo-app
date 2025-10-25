@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useUser } from "@/context/UserContext";
 
 export default function LoginPage() {
-  const { user, loading } = useUser();
+  const { user, setUser, loading } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
@@ -23,6 +23,7 @@ export default function LoginPage() {
     if (res.ok) {
       localStorage.setItem("dailysGuestId", data.user.anonId);
       setStatus("✅ Logged in!");
+      setUser(data.user)
       console.log("User Logged in:", data.user);
     } else {
       setStatus(`❌ ${data.error}`);
