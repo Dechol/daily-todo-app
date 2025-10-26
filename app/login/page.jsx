@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const { user, setUser, loading } = useUser();
+  const router = useRouter()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
@@ -25,6 +27,8 @@ export default function LoginPage() {
       setStatus("✅ Logged in!");
       setUser(data.user)
       console.log("User Logged in:", data.user);
+      router.push("/")
+
     } else {
       setStatus(`❌ ${data.error}`);
     }

@@ -1,82 +1,65 @@
+// app/api/todos/[date]/route.js
+import { NextResponse } from "next/server";
+import Todo from "@/models/Todo";
+import { getUserId } from "@/lib/auth"; // we'll define this helper below
 import { connectDB } from "@/lib/mongodb";
-import List from "@/models/List";
 import User from "@/models/User";
 
-// GET /api/todos/[date]
 export async function GET(req, { params }) {
-  await connectDB();
-  const { date } = await params;
-
-  const anonId = req.headers.get("x-anon-id"); // or cookie/JWT later
-
-  const user = await User.findOne({ anonId });
-  if (!user) {
-    return Response.json({ error: "User not found" }, { status: 404 });
-  }
-
-  let list = await List.findOne({ user: user._id, date });
-  if (!list) {
-    list = await List.create({ user: user._id, date, todos: [] });
-  }
-  return Response.json(list);
-}
-
-// POST /api/todos/[date]
-export async function POST(req, { params }) {
   try{
     await connectDB();
+    // const userId = await getUserId(req);
+    const userId = req.headers.get("x-anon-id"); // or cookie/JWT later
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    console.log("userId", userId)
+  
     const { date } = await params;
-    const anonId = req.headers.get("x-anon-id");
-    const { text } = await req.json();
+  
 
-    if (!date) {
-      return Response.json({ error: "Missing date" }, { status: 400 });
-    }
-    if (!anonId) {
-      return Response.json({ error: "Missing anonId header" }, { status: 400 });
-    }
-    if (!text) {
-      return Response.json({ error: "Missing text" }, { status: 400 });
-    }
-    
-    const user = await User.findOne({ anonId });
-    
-    if (!user) {
-      return Response.json({ error: "User not found" }, { status: 404 });
-    }
-    
-    const list = await List.findOneAndUpdate(
-      { user: user._id, date },
-      { $push: { todos: { text } } },
-      { new: true, upsert: true }
-    );
+    const user = await User.findOne({anonId: userId})
+  
+    const todos = await Todo.find({ user: user._id, date }).sort({ createdAt: 1 });
+  
+    return NextResponse.json(todos);
 
-    console.log("HIT API ROUTE", list)
+  } catch(err){
+    console.log(err)
+    return NextResponse.json(err);
 
-    return Response.json(list);
-  } catch (error){
-    console.error("❌ API ERROR:", error);
-
-    return Response.json({error:"failed to post todo"}, {status: 400});
   }
+
 }
 
+export async function POST(req, { params }) {
+  try{
 
+    await connectDB();
+    
+    // const userId = await getUserId(req);
+    const userId = req.headers.get("x-anon-id"); // or cookie/JWT later
 
-// PATCH /api/todos/[date]
-export async function PATCH(req, { params }) {
-  await connectDB();
-  const { date } = await params;
-  const { todoId } = await req.json();
+    const { date } = params;
+    
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    
+    const { text } = await req.json();
 
-  const list = await List.findOne({ date });
-  if (!list) return Response.json({ error: "Not found" }, { status: 404 });
+    if (!text) return NextResponse.json({ error: "Todo not found" }, { status: 401 });
 
-  const todo = list.todos.id(todoId);
-  if (!todo) return Response.json({ error: "Todo not found" }, { status: 404 });
+    const user = await User.findOne({anonId: userId})
+    console.log("user", user)
+    
+    const todo = await Todo.create({
+      user: user._id,
+      text,
+      date,
+    });
+    
+    return NextResponse.json(todo, { status: 201 });
+  } catch(error){
 
-  todo.completed = !todo.completed;
-  await list.save();
+    console.log(error)
+    return NextResponse.json(error, { status: 400 });
 
-  return Response.json(list);
+  }
 }

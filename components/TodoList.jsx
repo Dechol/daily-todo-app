@@ -1,31 +1,38 @@
 "use client";
 import { useEffect, useState } from "react";
 import TodoItem from "./TodoItem";
+import { useUser } from "@/context/UserContext";
 
 export default function TodoList({ date }) {
+  const user = useUser()
   const [todos, setTodos] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
 
+  
   // Fetch todos whenever the date changes
   useEffect(() => {
+    
+    if(user.loading) return
+    console.log(user.user.anonId)
+    
     async function fetchTodos() {
       setLoading(true);
       const res = await fetch(`/api/todos/${date}`, {
         headers: {
           "Content-Type": "application/json",
-          "x-anon-id": localStorage.getItem("guestId"),
+          "x-anon-id": user.user.anonId,
         },
       });
       const data = await res.json();
-      // console.log(data)
+      console.log(data)
       // console.log(data.todos)
-
-      setTodos(data.todos || []);
+      
+      setTodos(data || []);
       setLoading(false);
     }
     fetchTodos();
-  }, [date]);
+  }, [date, user]);
 
   async function addTodo(e) {
     e.preventDefault();
@@ -34,13 +41,14 @@ export default function TodoList({ date }) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-anon-id": localStorage.getItem("guestId"),
+        "x-anon-id": user.user.anonId,
       },
       body: JSON.stringify({ text: input }),
     });
     const data = await res.json();
     console.log(data)
-    setTodos(data.todos);
+    setTodos((prev) => [...prev, data]);
+
     setInput("");
   }
 

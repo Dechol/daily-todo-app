@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
   const { user, setUser, loading } = useUser();
+  const router = useRouter()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
@@ -24,6 +26,7 @@ export default function SignUpPage() {
       setStatus("✅ Account created!");
       console.log("User upgraded:", data.user);
       setUser(data.user)
+      router.push("/")
     } else {
       setStatus(`❌ ${data.error}`);
     }
