@@ -15,7 +15,6 @@ export async function GET(req, { params }) {
   
     const { date } = await params;
   
-
     const user = await User.findOne({anonId: userId})
   
     const todos = await Todo.find({ user: user._id, date }).sort({ createdAt: 1 });
@@ -27,7 +26,6 @@ export async function GET(req, { params }) {
     return NextResponse.json(err);
 
   }
-
 }
 
 export async function POST(req, { params }) {
@@ -63,3 +61,74 @@ export async function POST(req, { params }) {
 
   }
 }
+
+// PATCH /api/todos/[date]
+export async function PATCH(req, { params }) {
+  try{
+    await connectDB();
+    const { date } = await params;
+    const { todoId } = await req.json();
+    console.log("todoId", todoId)
+    const userId = req.headers.get("x-anon-id"); // or cookie/JWT later
+
+        
+    const todo = await Todo.findOne({_id: todoId})
+    console.log(todo)
+    if (!todo) return Response.json({ error: "Todo not found" }, { status: 404 });
+    
+    todo.completed = !todo.completed;
+    await todo.save();
+    
+    return Response.json(todo);
+  } catch(error){
+
+    console.log(error)
+    return Response.json(error);
+
+  }
+}
+
+export async function DELETE(req) {
+  try {
+    await connectDB();
+    const { todoId } = await req.json();
+    const userId = req.headers.get("x-anon-id");
+
+    const deleted = await Todo.findOneAndDelete({ _id: todoId});
+    if (!deleted) {
+      return Response.json({ error: "Todo not found" }, { status: 404 });
+    }
+
+    return Response.json({ success: true });
+  } catch (error) {
+
+    console.error(error);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function PUT(req) {
+  try {
+    await connectDB();
+    const { todoId, newText } = await req.json();
+    // const userId = req.headers.get("x-anon-id");
+
+    const updated = await Todo.findOneAndUpdate(
+      { _id: todoId},
+      { text: newText },
+      { new: true }
+    );
+
+    if (!updated) {
+      return Response.json({ error: "Todo not found" }, { status: 404 });
+    }
+
+    return Response.json(updated);
+  } catch (error) {
+
+    console.error(error);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+}
+
+

@@ -52,14 +52,20 @@ export default function TodoList({ date }) {
     setInput("");
   }
 
-  async function toggleTodo(id) {
+  async function toggleTodo(todoId) {
     const res = await fetch(`/api/todos/${date}`, {
       method: "PATCH",
-      body: JSON.stringify({ todoId: id }),
+      headers: {
+        "Content-Type": "application/json",
+        "x-anon-id": user.user.anonId,
+      },
+      body: JSON.stringify({ todoId }),
     });
     const data = await res.json();
     console.log(data)
-    setTodos(data.todos);
+    setTodos((prev) =>
+      prev.map((t) => (t._id === data._id ? data : t))
+    );
   }
 
   return (
