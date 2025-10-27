@@ -68,6 +68,41 @@ export default function TodoList({ date }) {
     );
   }
 
+  async function onDelete(todoId){
+
+    const res = await fetch(`/api/todos/${date}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "x-anon-id": user.user.anonId,
+      },
+      body: JSON.stringify({ todoId }),
+    });
+    const data = await res.json();
+    console.log(data)
+    setTodos((prev) =>
+      prev.filter(t => t._id !== todoId)
+    );
+  }
+
+  async function onEdit(todoId, text){
+
+    const res = await fetch(`/api/todos/${date}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "x-anon-id": user.user.anonId,
+      },
+      body: JSON.stringify({ todoId, text }),
+    });
+    const data = await res.json();
+    console.log(data)
+    setTodos((prev) =>
+      prev.map(t => t._id === data._id? data: t)
+    );
+  }
+
+
   return (
     <div>
       {/* Add Todo */}
@@ -94,7 +129,7 @@ export default function TodoList({ date }) {
       ) : (
         <ul className="space-y-2">
           {todos.map((todo) => (
-            <TodoItem key={todo._id} todo={todo} onToggle={() => toggleTodo(todo._id)} />
+            <TodoItem key={todo._id} todo={todo} onToggle={() => toggleTodo(todo._id)} onDelete={()=> onDelete(todo._id)} onEdit={onEdit}/>
           ))}
         </ul>
       )}

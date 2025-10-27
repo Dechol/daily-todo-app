@@ -92,9 +92,10 @@ export async function DELETE(req) {
   try {
     await connectDB();
     const { todoId } = await req.json();
-    const userId = req.headers.get("x-anon-id");
+    console.log("todoId", todoId)
 
     const deleted = await Todo.findOneAndDelete({ _id: todoId});
+    
     if (!deleted) {
       return Response.json({ error: "Todo not found" }, { status: 404 });
     }
@@ -110,12 +111,13 @@ export async function DELETE(req) {
 export async function PUT(req) {
   try {
     await connectDB();
-    const { todoId, newText } = await req.json();
+    const { todoId, text } = await req.json();
+    console.log(todoId, text)
     // const userId = req.headers.get("x-anon-id");
 
     const updated = await Todo.findOneAndUpdate(
       { _id: todoId},
-      { text: newText },
+      { text },
       { new: true }
     );
 
