@@ -6,6 +6,7 @@ const todoSchema = new mongoose.Schema({
 
   text: { type: String, required: true },
   completed: { type: Boolean, default: false },
+  isGoal: { type: Boolean, default: false }, // ✅ NEW
 
   // Calendar link
   date: { type: String }, // e.g. "2025-10-25" (ISO string for simplicity)

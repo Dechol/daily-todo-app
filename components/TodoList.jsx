@@ -102,6 +102,25 @@ export default function TodoList({ date }) {
     );
   }
 
+  const handleGoal = async (todoId) => {
+    const res = await fetch(`/api/todos/${date}/goal`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ todoId }),
+    });
+
+    if (res.ok) {
+      const { todo } = await res.json();
+      console.log(todo)
+      setTodos((prev) =>
+        prev.map((t) => (t._id === todo._id ? { ...t, isGoal: todo.isGoal } : t))
+      );
+    }
+  };
+
+
+  const goals = todos.filter((t) => t.isGoal);
+  const regularTodos = todos.filter((t) => !t.isGoal);
 
   return (
     <div>
@@ -127,11 +146,49 @@ export default function TodoList({ date }) {
       ) : todos.length === 0 ? (
         <p className="text-center text-gray-400">No todos for this day.</p>
       ) : (
-        <ul className="space-y-2">
-          {todos.map((todo) => (
-            <TodoItem key={todo._id} todo={todo} onToggle={() => toggleTodo(todo._id)} onDelete={()=> onDelete(todo._id)} onEdit={onEdit}/>
-          ))}
-        </ul>
+
+        <>
+          {goals.length > 0 && (
+            <section>
+              <h2 className="font-bold text-lg mb-2">🎯 Today’s Goals</h2>
+              <ul>
+                {goals.map((t) => (
+
+
+                
+                <TodoItem                 
+                    key={t._id} 
+                    todo={t} 
+                    onToggle={() => toggleTodo(t._id)} 
+                    onDelete={()=> onDelete(t._id)} 
+                    onEdit={onEdit}
+                    onGoal={handleGoal}
+                />
+
+                )
+              
+                )}
+                
+              </ul>
+            </section>
+          )}
+        
+          <ul className="space-y-2">
+
+            {regularTodos.map((todo) => (
+              <TodoItem 
+                key={todo._id} 
+                todo={todo} 
+                onToggle={() => toggleTodo(todo._id)} 
+                onDelete={()=> onDelete(todo._id)} 
+                onEdit={onEdit}
+                onGoal={handleGoal}
+              />
+            ))}
+          </ul>
+
+        </>
+
       )}
     </div>
   );

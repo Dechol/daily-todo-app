@@ -28,45 +28,53 @@ export default function Nav(){
     // Guest user 
     if(user.isGuest){ 
         return (
+          <>
           <header className="flex justify-between items-center p-4 bg-gray-50">
             {/* Left side: anonId (dev only) */}
             <div id="anon-id" className="text-xs text-gray-500 font-mono">Welcome back guest, {user.anonId}</div>
 
+              
+
             {/* Right side: Sign In */}
             <div>
-
-            <Link
-              href="/signup"
-              className="px-3 py-1 text-sm bg-white text-black rounded hover:bg-blue-400 transition"
-              >
-              Sign Up
-            </Link>
-            <Link
-              href="/login"
-              className="px-3 py-1 text-sm bg-white text-black rounded hover:bg-blue-400 transition"
-              >
-              Log In
-            </Link>
+              <Link
+                href="/signup"
+                className="px-3 py-1 text-sm bg-white text-black rounded hover:bg-blue-400 transition"
+                >
+                Sign Up
+              </Link>
+              <Link
+                href="/login"
+                className="px-3 py-1 text-sm bg-white text-black rounded hover:bg-blue-400 transition"
+                >
+                Log In
+              </Link>
             </div>
           </header>
+          
+          <h1 className="text-3xl font-bold text-center text-black bg-gray-50">🗓 DAILYS</h1>
 
+          </>
         )
     }
 
-
-
-
     // User logged in 
     return(
+      <>
           <header className="flex justify-between items-center p-4 bg-gray-50">
             {/* Left side: anonId (dev only) */}
             <div id="anon-id" className="text-xs text-gray-500 font-mono">Welcome back, {user.email}</div>
+
+
 
             {/* Right side: Sign In */}
             <button onClick={logout} className="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700" > 
               Log out 
             </button>
           </header>
+
+      </>
+
     )
 
 }

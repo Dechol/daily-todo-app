@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
+export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal }) {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(todo.text);
 
@@ -61,6 +61,15 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
             Edit
           </button>
         )}
+
+        <button
+          onClick={() => onGoal(todo._id)}
+          className={`text-sm px-2 py-1 rounded ${
+            todo.isGoal ? "bg-yellow-400 text-white" : "bg-gray-100"
+          }`}
+        >
+          ⭐
+        </button>
 
         <button
           onClick={() => onDelete(todo._id)}

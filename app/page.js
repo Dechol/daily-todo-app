@@ -15,7 +15,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900 p-4">
       <div className="max-w-lg mx-auto mt-10 bg-white shadow-lg rounded-2xl p-6">
-        <h1 className="text-3xl font-bold text-center mb-6">🗓 Daily todo list</h1>
+
 
         {/* Date controls */}
         <div className="flex items-center justify-between mb-4">
