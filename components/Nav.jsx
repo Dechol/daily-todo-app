@@ -4,7 +4,6 @@ import { useUser } from "@/context/UserContext"
 import Link from "next/link"
 
 export default function Nav(){
-    // const {user, loading } = useUser()
     const {user, loading} = useUser()
     console.log(user)
 
@@ -12,15 +11,30 @@ export default function Nav(){
       const res = await fetch("/api/auth/logout", {
         method: "POST",
       });
-      
       const data = await res.json();
-      console.log("data", data)
 
       if (data.status === "logged_out") {
         // Optionally reload the page or redirect
         localStorage.removeItem("dailysGuestId")
         window.location.reload();
       }
+    }
+
+    async function createProject(){
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: user._id,
+          name: "New Project",
+          description: "Tasks for my app launch",
+        }),
+      });
+
+      console.log(res)
+      const data = await res.json()
+      console.log(data)
+
     }
 
     if(loading) return <>loading...</>
@@ -68,9 +82,16 @@ export default function Nav(){
 
 
             {/* Right side: Sign In */}
-            <button onClick={logout} className="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700" > 
-              Log out 
-            </button>
+            <div>
+              <button onClick={createProject} className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-400 mr-1" > 
+                New Project 
+              </button>
+
+              <button onClick={logout} className="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700" > 
+                Log out 
+              </button>
+
+            </div>
           </header>
 
       </>

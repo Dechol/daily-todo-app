@@ -121,75 +121,82 @@ export default function TodoList({ date }) {
 
   const goals = todos.filter((t) => t.isGoal);
   const regularTodos = todos.filter((t) => !t.isGoal);
+  const completed = todos.filter(t => t.completed).length;
+  const total = todos.length;
+
 
   return (
-    <div>
-      {/* Add Todo */}
-      <form onSubmit={addTodo} className="flex mb-4">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Add a new task..."
-          className="flex-1 border rounded-l p-2 outline-none"
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 rounded-r hover:bg-blue-600"
-        >
-          Add
-        </button>
-      </form>
+<div className="max-w-xl mx-auto mt-6 space-y-6">
 
-      {/* Todo Items */}
-      {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
-      ) : todos.length === 0 ? (
-        <p className="text-center text-gray-400">No todos for this day.</p>
-      ) : (
+  <header className="text-center my-6">
+  <h1 className="text-2xl font-bold">🧘 My Daily Tracker</h1>
+  <p className="text-gray-500 text-sm">Plan your day, focus on what matters most.</p>
+  <p className="text-sm text-gray-500 mt-3">
+  ✅ {completed}/{total} tasks done
+</p>
 
-        <>
-          {goals.length > 0 && (
-            <section>
-              <h2 className="font-bold text-lg mb-2">🎯 Today’s Goals</h2>
-              <ul>
-                {goals.map((t) => (
+</header>
 
+  {/* Add Todo */}
+  <form onSubmit={addTodo} className="flex shadow rounded-lg overflow-hidden">
+    <input
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      placeholder="Add a new task..."
+      className="flex-1 p-3 outline-none text-sm border-none focus:ring-0"
+    />
+    <button
+      type="submit"
+      className="bg-blue-600 text-white px-5 text-sm font-semibold hover:bg-blue-700 transition"
+    >
+      Add
+    </button>
+  </form>
 
-                
-                <TodoItem                 
-                    key={t._id} 
-                    todo={t} 
-                    onToggle={() => toggleTodo(t._id)} 
-                    onDelete={()=> onDelete(t._id)} 
-                    onEdit={onEdit}
-                    onGoal={handleGoal}
-                />
-
-                )
-              
-                )}
-                
-              </ul>
-            </section>
-          )}
-        
+  {/* Todo Sections */}
+  {loading ? (
+    <p className="text-center text-gray-500">Loading...</p>
+  ) : (
+    <>
+      {goals.length > 0 && (
+        <section className="bg-yellow-50 border border-yellow-100 rounded-xl p-4 shadow-sm">
+          <h2 className="font-bold text-lg mb-3 text-yellow-800">🎯 Today’s Goals</h2>
           <ul className="space-y-2">
-
-            {regularTodos.map((todo) => (
-              <TodoItem 
-                key={todo._id} 
-                todo={todo} 
-                onToggle={() => toggleTodo(todo._id)} 
-                onDelete={()=> onDelete(todo._id)} 
+            {goals.map((t) => (
+              <TodoItem
+                key={t._id}
+                todo={t}
+                onToggle={() => toggleTodo(t._id)}
+                onDelete={() => onDelete(t._id)}
                 onEdit={onEdit}
                 onGoal={handleGoal}
               />
             ))}
           </ul>
-
-        </>
-
+        </section>
       )}
-    </div>
+
+      <section className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+        <h2 className="font-semibold text-gray-700 mb-3">🗒️ Tasks</h2>
+        {regularTodos.length > 0 ? (
+          <ul className="space-y-2">
+            {regularTodos.map((t) => (
+              <TodoItem
+                key={t._id}
+                todo={t}
+                onToggle={() => toggleTodo(t._id)}
+                onDelete={() => onDelete(t._id)}
+                onEdit={onEdit}
+                onGoal={handleGoal}
+              />
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-400 text-sm">No regular tasks today.</p>
+        )}
+      </section>
+    </>
+  )}
+</div>
   );
 }
