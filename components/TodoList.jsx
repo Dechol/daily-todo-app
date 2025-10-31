@@ -8,13 +8,14 @@ export default function TodoList({ date }) {
   const [todos, setTodos] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState([])
 
   
   // Fetch todos whenever the date changes
   useEffect(() => {
     
     if(user.loading) return
-    console.log(user.user.anonId)
+    console.log(user.user)
     
     async function fetchTodos() {
       setLoading(true);
@@ -25,13 +26,21 @@ export default function TodoList({ date }) {
         },
       });
       const data = await res.json();
-      console.log(data)
-      // console.log(data.todos)
       
       setTodos(data || []);
       setLoading(false);
     }
+
+    async function fetchProjects(){
+
+      const res = await fetch(`/api/projects?user=${user.user._id}`);
+      const data = await res.json();
+      console.log(data)
+      setProjects(data)
+    }
+
     fetchTodos();
+    fetchProjects()
   }, [date, user]);
 
   async function addTodo(e) {
@@ -118,6 +127,19 @@ export default function TodoList({ date }) {
     }
   };
 
+  const onChangeProject = async(todoId, projectId) => {
+    const res = await fetch(`/api/todos/${date}/project`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ todoId, projectId }),
+    });
+
+    const data = await res.json()
+    console.log("onChangeProject", data)
+
+
+  }
+
 
   const goals = todos.filter((t) => t.isGoal);
   const regularTodos = todos.filter((t) => !t.isGoal);
@@ -157,6 +179,8 @@ export default function TodoList({ date }) {
   {loading ? (
     <p className="text-center text-gray-500">Loading...</p>
   ) : (
+
+    // GOALS SECTIONS
     <>
       {goals.length > 0 && (
         <section className="bg-yellow-50 border border-yellow-100 rounded-xl p-4 shadow-sm">
@@ -170,12 +194,30 @@ export default function TodoList({ date }) {
                 onDelete={() => onDelete(t._id)}
                 onEdit={onEdit}
                 onGoal={handleGoal}
+                projects={projects}
               />
             ))}
           </ul>
         </section>
       )}
 
+
+      {/* PROJECTS SECTION  */}
+      {projects.length > 0 && (
+        <section >
+          {projects.map((p, index) => (
+            <div key={index} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6">
+              <h2 className="font-bold text-lg mb-3 text-red-800">{p.icon} {p.name}</h2>
+
+            </div>
+          ))}
+        </section>
+      )}
+
+
+
+
+      {/* REGULAR TODOS SECTION  */}
       <section className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
         <h2 className="font-semibold text-gray-700 mb-3">🗒️ Tasks</h2>
         {regularTodos.length > 0 ? (
@@ -188,6 +230,8 @@ export default function TodoList({ date }) {
                 onDelete={() => onDelete(t._id)}
                 onEdit={onEdit}
                 onGoal={handleGoal}
+                projects={projects}
+                onChangeProject={onChangeProject}
               />
             ))}
           </ul>

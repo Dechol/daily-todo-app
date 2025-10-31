@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 
-export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal }) {
+export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal, projects, onChangeProject }) {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(todo.text);
+
+  console.log(projects)
 
   const handleSave = (e) => {
     e.preventDefault()
@@ -13,6 +15,15 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal }) {
     }
     setIsEditing(false);
   };
+
+  const handleChangeProject = (e) => {
+    e.preventDefault()
+    console.log(e.target.value)
+
+    onChangeProject(todo._id, e.target.value )
+
+    // pass a onChangeProject function call here - to update db and state 
+  }
 
   return (
     <li
@@ -61,6 +72,17 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal }) {
             Edit
           </button>
         )}
+
+        {/* <label htmlFor="selectProject">Select Project</label> */}
+        <select id="selectProject" className="max-w-[20px]" onChange={handleChangeProject}>
+          
+          <option value="hi">old project</option>
+          {projects && projects.map((p, i) => (
+            <option key={i} value={p._id}>{p.name}</option>
+
+          ))}
+
+        </select>
 
         <button
           onClick={() => onGoal(todo._id)}

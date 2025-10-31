@@ -17,6 +17,7 @@ export async function GET(req) {
     if (!userId) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
+    console.log(userId)
 
     const projects = await Project.find({ user: userId }).sort({ createdAt: -1 });
     return NextResponse.json(projects);
