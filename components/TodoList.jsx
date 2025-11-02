@@ -13,9 +13,35 @@ export default function TodoList({ date }) {
   
   // Fetch todos whenever the date changes
   useEffect(() => {
-    
     if(user.loading) return
-    console.log(user.user)
+
+    async function fetchData() {
+      
+      setLoading(true)
+
+      const [ todoRes, projectRes ] = await Promise.all([
+
+        fetch(`/api/todos/${date}`, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-anon-id": user.user.anonId,
+          },
+        }),
+
+        fetch(`/api/projects?user=${user.user._id}`)
+      ]);
+
+      const [ todoData, projectData ] = await Promise.all([
+        todoRes.json(),
+        projectRes.json()        
+      ])
+
+      console.log("todoData", todoData)
+      console.log("projectData", projectData)
+
+      setProjects(projectData)
+
+    }
     
     async function fetchTodos() {
       setLoading(true);
@@ -26,13 +52,13 @@ export default function TodoList({ date }) {
         },
       });
       const data = await res.json();
+      console.log(data)
       
       setTodos(data || []);
       setLoading(false);
     }
 
     async function fetchProjects(){
-
       const res = await fetch(`/api/projects?user=${user.user._id}`);
       const data = await res.json();
       console.log(data)
@@ -136,15 +162,21 @@ export default function TodoList({ date }) {
 
     const data = await res.json()
     console.log("onChangeProject", data)
-
-
   }
 
 
+
   const goals = todos.filter((t) => t.isGoal);
-  const regularTodos = todos.filter((t) => !t.isGoal);
+  const todosWithProjects = todos.filter(t => t.project);
+  const regularTodos = todos.filter((t) => !t.isGoal && !t.project);
   const completed = todos.filter(t => t.completed).length;
   const total = todos.length;
+
+  const todosByProject = projects.map(p => ({
+    project: p,
+    todos: todosWithProjects.filter(t => t.project === p._id)
+  }))
+  console.log("todosByProject", todosByProject)
 
 
   return (
@@ -195,6 +227,8 @@ export default function TodoList({ date }) {
                 onEdit={onEdit}
                 onGoal={handleGoal}
                 projects={projects}
+                onChangeProject={onChangeProject}
+
               />
             ))}
           </ul>
@@ -203,18 +237,59 @@ export default function TodoList({ date }) {
 
 
       {/* PROJECTS SECTION  */}
-      {projects.length > 0 && (
+      {/* {projects.length > 0 && (
         <section >
           {projects.map((p, index) => (
-            <div key={index} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6">
+            <div key={index} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6 flex justify-between">
               <h2 className="font-bold text-lg mb-3 text-red-800">{p.icon} {p.name}</h2>
+              <div className="flex gap-2">
+                <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1">edit</button>
+                <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">delete</button>
+
+              </div>
+
+            </div>
+          ))}
+        </section>
+      )} */}
+
+      {/* TODOSBY PROJECT SECTION  */}
+      {todosByProject.length > 0 && (
+        <section >
+          {todosByProject.map((p, i) => (
+            <div key={i} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6 flex flex-col justify-between">
+
+              <div className="flex">
+                <h2 className="font-bold text-lg mb-3 text-red-800">{p.project.icon} {p.project.name}</h2>
+                <div className="flex gap-2">
+                  <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1">edit</button>
+                  <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">delete</button>
+                </div>
+              </div>
+
+
+              {p.todos.length > 0 && p.todos.map((t, i) => (
+
+
+                                <TodoItem
+                key={t._id}
+                todo={t}
+                onToggle={() => toggleTodo(t._id)}
+                onDelete={() => onDelete(t._id)}
+                onEdit={onEdit}
+                onGoal={handleGoal}
+                projects={projects}
+                onChangeProject={onChangeProject}
+              />
+                )
+            )
+
+              }
 
             </div>
           ))}
         </section>
       )}
-
-
 
 
       {/* REGULAR TODOS SECTION  */}

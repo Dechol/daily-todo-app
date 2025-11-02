@@ -6,8 +6,6 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal, pro
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(todo.text);
 
-  console.log(projects)
-
   const handleSave = (e) => {
     e.preventDefault()
     if (text.trim() && text !== todo.text) {
