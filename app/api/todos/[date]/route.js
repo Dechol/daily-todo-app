@@ -36,7 +36,7 @@ export async function POST(req, { params }) {
     // const userId = await getUserId(req);
     const userId = req.headers.get("x-anon-id"); // or cookie/JWT later
 
-    const { date } = params;
+    const { date } = await params;
     
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     

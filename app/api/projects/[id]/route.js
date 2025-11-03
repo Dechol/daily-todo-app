@@ -5,7 +5,7 @@ import { getUserFromRequest } from "@/lib/auth"; // optional helper if you have 
 
 // GET → get a project and its todos
 
-// PATCH → update project details
+// PATCH → update project details, rename**
 
 // DELETE → delete project and related todos
 
@@ -29,9 +29,11 @@ export async function GET(req, { params }) {
 export async function PATCH(req, { params }) {
   try {
     await connectDB();
-    const updates = await req.json();
+    const { id } = await params
+    const { name } = await req.json();
+    // console.log("updates", updates)
 
-    const project = await Project.findByIdAndUpdate(params.id, updates, { new: true });
+    const project = await Project.findByIdAndUpdate(id, { name }, { new: true });
     if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
     return NextResponse.json(project);

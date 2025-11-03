@@ -9,6 +9,8 @@ export default function TodoList({ date }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([])
+  const [isEditing, setIsEditing] = useState(false);
+  // const [editProjectName, setProjectName] = useState(todo.text);
 
   
   // Fetch todos whenever the date changes
@@ -178,6 +180,43 @@ export default function TodoList({ date }) {
   }))
   console.log("todosByProject", todosByProject)
 
+  // Start editing a project
+function startEdit(id, currentName) {
+  setProjects((prev) =>
+    prev.map((p) =>
+      p._id === id ? { ...p, isEditing: true, editName: currentName } : p
+    )
+  );
+}
+
+// Cancel edit
+function cancelEdit(id) {
+  setProjects((prev) =>
+    prev.map((p) => (p._id === id ? { ...p, isEditing: false } : p))
+  );
+}
+
+// Save new project name
+async function handleSaveProjectName(id, newName) {
+  const res = await fetch(`/api/projects/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: newName }),
+  });
+
+  if (res.ok) {
+    const updated = await res.json();
+    setProjects((prev) =>
+      prev.map((p) =>
+        p._id === id ? { ...updated, isEditing: false } : p
+      )
+    );
+  } else {
+    console.error("Failed to update project");
+  }
+}
+
+
 
   return (
 <div className="max-w-xl mx-auto mt-6 space-y-6">
@@ -254,37 +293,63 @@ export default function TodoList({ date }) {
       )} */}
 
       {/* TODOSBY PROJECT SECTION  */}
-      {todosByProject.length > 0 && (
+      {projects.length > 0 && (
         <section >
           {todosByProject.map((p, i) => (
-            <div key={i} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6 flex flex-col justify-between">
+            <div key={i} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6">
 
-              <div className="flex">
-                <h2 className="font-bold text-lg mb-3 text-red-800">{p.project.icon} {p.project.name}</h2>
-                <div className="flex gap-2">
-                  <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1">edit</button>
-                  <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">delete</button>
-                </div>
+              {/* project details section - icon & name  */}
+              <div className="flex justify-between">
+                <h2 className="font-bold text-lg mb-3 text-red-800">{p.project.icon} 
+                  
+                  {p.isEditing? (
+                    <input 
+                      type="text"
+                      value={p.editName}
+                      onChange={(e)=> 
+                        setProjects((prev) => 
+                          prev.map((proj)=> proj._id === p._id ? { ...proj, editName: e.target.value} : proj)
+                        )
+                      }
+                      
+                    />
+
+                  ) : p.project.name
+                  }
+                  
+                </h2>
+
+                  {isEditing? (
+
+                    <div className="flex gap-2">
+                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >save</button>
+                      <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">cancel</button>
+                    </div>
+
+
+                  ):(
+
+                    
+                    <div className="flex gap-2">
+                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >edit</button>
+                      <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">delete</button>
+                    </div>
+                  )}
               </div>
-
 
               {p.todos.length > 0 && p.todos.map((t, i) => (
 
-
-                                <TodoItem
-                key={t._id}
-                todo={t}
-                onToggle={() => toggleTodo(t._id)}
-                onDelete={() => onDelete(t._id)}
-                onEdit={onEdit}
-                onGoal={handleGoal}
-                projects={projects}
-                onChangeProject={onChangeProject}
-              />
-                )
-            )
-
-              }
+                <TodoItem
+                  key={t._id}
+                  todo={t}
+                  onToggle={() => toggleTodo(t._id)}
+                  onDelete={() => onDelete(t._id)}
+                  onEdit={onEdit}
+                  onGoal={handleGoal}
+                  projects={projects}
+                  onChangeProject={onChangeProject}
+                />
+              ))}
 
             </div>
           ))}
