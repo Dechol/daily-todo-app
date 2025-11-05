@@ -182,9 +182,10 @@ export default function TodoList({ date }) {
 
   // Start editing a project
 function startEdit(id, currentName) {
+  console.log(id, currentName)
   setProjects((prev) =>
     prev.map((p) =>
-      p._id === id ? { ...p, isEditing: true, editName: currentName } : p
+      p.project._id === id ? { ...p, isEditing: true, editName: currentName } : p
     )
   );
 }
@@ -303,16 +304,17 @@ async function handleSaveProjectName(id, newName) {
                 <h2 className="font-bold text-lg mb-3 text-red-800">{p.project.icon} 
                   
                   {p.isEditing? (
-                    <input 
-                      type="text"
-                      value={p.editName}
-                      onChange={(e)=> 
-                        setProjects((prev) => 
-                          prev.map((proj)=> proj._id === p._id ? { ...proj, editName: e.target.value} : proj)
-                        )
-                      }
+                    // <input 
+                    //   type="text"
+                    //   value={p.editName}
+                    //   onChange={(e)=> 
+                    //     setProjects((prev) => 
+                    //       prev.map((proj)=> proj._id === p._id ? { ...proj, editName: e.target.value} : proj)
+                    //     )
+                    //   }
                       
-                    />
+                    // />
+                      "EDITING PROJECT"
 
                   ) : p.project.name
                   }
@@ -322,7 +324,9 @@ async function handleSaveProjectName(id, newName) {
                   {isEditing? (
 
                     <div className="flex gap-2">
-                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >save</button>
+                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> !p.isEditing} >save</button>
+                      {/* <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >save</button> */}
+
                       <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">cancel</button>
                     </div>
 
@@ -331,7 +335,9 @@ async function handleSaveProjectName(id, newName) {
 
                     
                     <div className="flex gap-2">
-                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >edit</button>
+                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> startEdit(p.project._id, p.project.name)} >edit</button>
+                      {/* <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >edit</button> */}
+
                       <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">delete</button>
                     </div>
                   )}
