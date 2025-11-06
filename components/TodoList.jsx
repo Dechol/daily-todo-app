@@ -11,6 +11,7 @@ export default function TodoList({ date }) {
   const [projects, setProjects] = useState([])
   const [isEditing, setIsEditing] = useState(false);
   // const [editProjectName, setProjectName] = useState(todo.text);
+  const [data, setData] = useState()
 
   
   // Fetch todos whenever the date changes
@@ -41,9 +42,28 @@ export default function TodoList({ date }) {
       console.log("todoData", todoData)
       console.log("projectData", projectData)
 
-      setProjects(projectData)
+      // setProjects(projectData)
+
+      // organise data 
+      const goals = todoData.filter(t => t.isGoal)
+      const todosWithProjects = todoData.filter(t => t.project)
+      const todosWithoutProjects = todoData.filter(t => !t.project)
+
+      // const todosByProject = todoData.map()
+      // const projects = projectData
+      // organise projects 
+      // const projectsWithTodos 
+
+      setData({
+        all: todoData,
+        goals,
+        projects: projectData,
+        todos: todosWithoutProjects
+      })
 
     }
+    
+    fetchData()
     
     async function fetchTodos() {
       setLoading(true);
@@ -54,7 +74,7 @@ export default function TodoList({ date }) {
         },
       });
       const data = await res.json();
-      console.log(data)
+      console.log("todos", todos)
       
       setTodos(data || []);
       setLoading(false);
@@ -63,12 +83,12 @@ export default function TodoList({ date }) {
     async function fetchProjects(){
       const res = await fetch(`/api/projects?user=${user.user._id}`);
       const data = await res.json();
-      console.log(data)
+      console.log("projects", projects)
       setProjects(data)
     }
 
-    fetchTodos();
-    fetchProjects()
+    // fetchTodos();
+    // fetchProjects()
   }, [date, user]);
 
   async function addTodo(e) {
@@ -100,9 +120,12 @@ export default function TodoList({ date }) {
     });
     const data = await res.json();
     console.log(data)
-    setTodos((prev) =>
-      prev.map((t) => (t._id === data._id ? data : t))
-    );
+
+    // update state
+    // setTodos((prev) =>
+    //   prev.map((t) => (t._id === data._id ? data : t))
+    // );
+
   }
 
   async function onDelete(todoId){
@@ -181,14 +204,33 @@ export default function TodoList({ date }) {
   console.log("todosByProject", todosByProject)
 
   // Start editing a project
-function startEdit(id, currentName) {
-  console.log(id, currentName)
-  setProjects((prev) =>
-    prev.map((p) =>
-      p.project._id === id ? { ...p, isEditing: true, editName: currentName } : p
-    )
-  );
-}
+  function startEdit(projectId, projectName, project) {
+    // console.log(todos)
+    console.log(projectId, projectName, project)
+
+    // setData((prev) => (
+    //   prev.projects.map( (p) => p._id === projectId? { ...p, isEditing: true } : p  )
+    // ))
+    // console.log("data", data)
+
+    setData(prev => ({
+      ...prev, // keep other keys: all, goals, regularTodos
+      projects: prev.projects.map(p =>
+        p._id === projectId
+          ? { ...p, isEditing: true }
+          : p
+      )
+    }));
+
+
+
+    // not using projects!!
+    // setProjects( prev =>
+    //   prev.map( p =>
+    //     p.project._id === id ? { ...p, isEditing: true, editName: currentName } : p
+    //   )
+    // );
+  }
 
 // Cancel edit
 function cancelEdit(id) {
@@ -248,17 +290,17 @@ async function handleSaveProjectName(id, newName) {
   </form>
 
   {/* Todo Sections */}
-  {loading ? (
+  {!data ? (
     <p className="text-center text-gray-500">Loading...</p>
   ) : (
 
     // GOALS SECTIONS
     <>
-      {goals.length > 0 && (
+      {data.goals && (
         <section className="bg-yellow-50 border border-yellow-100 rounded-xl p-4 shadow-sm">
           <h2 className="font-bold text-lg mb-3 text-yellow-800">🎯 Today’s Goals</h2>
           <ul className="space-y-2">
-            {goals.map((t) => (
+            {data.goals.map((t) => (
               <TodoItem
                 key={t._id}
                 todo={t}
@@ -294,14 +336,14 @@ async function handleSaveProjectName(id, newName) {
       )} */}
 
       {/* TODOSBY PROJECT SECTION  */}
-      {projects.length > 0 && (
+      {data && (
         <section >
-          {todosByProject.map((p, i) => (
-            <div key={i} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6">
+          {data.projects.map( (p) => (
+            <div key={p._id} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6">
 
               {/* project details section - icon & name  */}
               <div className="flex justify-between">
-                <h2 className="font-bold text-lg mb-3 text-red-800">{p.project.icon} 
+                <h2 className="font-bold text-lg mb-3 text-red-800">{p.icon} 
                   
                   {p.isEditing? (
                     // <input 
@@ -316,15 +358,15 @@ async function handleSaveProjectName(id, newName) {
                     // />
                       "EDITING PROJECT"
 
-                  ) : p.project.name
+                  ) : "PROJECT NAME"
                   }
                   
                 </h2>
 
-                  {isEditing? (
+                  {p.isEditing? (
 
                     <div className="flex gap-2">
-                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> !p.isEditing} >save</button>
+                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1"  >save</button>
                       {/* <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >save</button> */}
 
                       <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">cancel</button>
@@ -332,10 +374,9 @@ async function handleSaveProjectName(id, newName) {
 
 
                   ):(
-
                     
                     <div className="flex gap-2">
-                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> startEdit(p.project._id, p.project.name)} >edit</button>
+                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={() => startEdit(p._id, p.name, p)} >edit</button>
                       {/* <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >edit</button> */}
 
                       <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">delete</button>
@@ -366,9 +407,9 @@ async function handleSaveProjectName(id, newName) {
       {/* REGULAR TODOS SECTION  */}
       <section className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
         <h2 className="font-semibold text-gray-700 mb-3">🗒️ Tasks</h2>
-        {regularTodos.length > 0 ? (
+        {data.todos ? (
           <ul className="space-y-2">
-            {regularTodos.map((t) => (
+            {data.todos.map((t) => (
               <TodoItem
                 key={t._id}
                 todo={t}
