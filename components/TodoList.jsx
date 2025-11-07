@@ -10,8 +10,9 @@ export default function TodoList({ date }) {
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([])
   const [isEditing, setIsEditing] = useState(false);
-  // const [editProjectName, setProjectName] = useState(todo.text);
+  const [editProjectName, setProjectName] = useState();
   const [data, setData] = useState()
+
 
   
   // Fetch todos whenever the date changes
@@ -104,7 +105,15 @@ export default function TodoList({ date }) {
     });
     const data = await res.json();
     console.log(data)
-    setTodos((prev) => [...prev, data]);
+    
+    // update state
+    
+    // setTodos((prev) => [...prev, data]);
+
+    setData( prev=> ({
+      ...prev,
+      todos: [ ...prev.todos, data]
+    }))
 
     setInput("");
   }
@@ -191,9 +200,7 @@ export default function TodoList({ date }) {
 
 
 
-  const goals = todos.filter((t) => t.isGoal);
   const todosWithProjects = todos.filter(t => t.project);
-  const regularTodos = todos.filter((t) => !t.isGoal && !t.project);
   const completed = todos.filter(t => t.completed).length;
   const total = todos.length;
 
@@ -203,15 +210,10 @@ export default function TodoList({ date }) {
   }))
   console.log("todosByProject", todosByProject)
 
-  // Start editing a project
-  function startEdit(projectId, projectName, project) {
-    // console.log(todos)
-    console.log(projectId, projectName, project)
+  // Start editing a project name
+  function startEdit(projectId, projectName) {
 
-    // setData((prev) => (
-    //   prev.projects.map( (p) => p._id === projectId? { ...p, isEditing: true } : p  )
-    // ))
-    // console.log("data", data)
+    setProjectName(projectName)
 
     setData(prev => ({
       ...prev, // keep other keys: all, goals, regularTodos
@@ -221,22 +223,19 @@ export default function TodoList({ date }) {
           : p
       )
     }));
-
-
-
-    // not using projects!!
-    // setProjects( prev =>
-    //   prev.map( p =>
-    //     p.project._id === id ? { ...p, isEditing: true, editName: currentName } : p
-    //   )
-    // );
   }
 
 // Cancel edit
-function cancelEdit(id) {
-  setProjects((prev) =>
-    prev.map((p) => (p._id === id ? { ...p, isEditing: false } : p))
-  );
+function cancelEdit(projectId) {
+
+  setData(prev => ({
+  ...prev, // keep other keys: all, goals, regularTodos
+  projects: prev.projects.map(p =>
+    p._id === projectId
+      ? { ...p, isEditing: false }
+      : p
+  )
+  }));
 }
 
 // Save new project name
@@ -247,18 +246,36 @@ async function handleSaveProjectName(id, newName) {
     body: JSON.stringify({ name: newName }),
   });
 
-  if (res.ok) {
-    const updated = await res.json();
-    setProjects((prev) =>
-      prev.map((p) =>
-        p._id === id ? { ...updated, isEditing: false } : p
-      )
-    );
-  } else {
-    console.error("Failed to update project");
+  const updated = await res.json();
+  console.log("updated", updated)
+
+  // update state  
+  if (res.ok){
+    setData(prev => ({
+      ...prev, // keep other keys: all, goals, regularTodos
+      projects: prev.projects.map(p => p._id === id ? { ...p, isEditing: false, name: editProjectName } : p )
+    }));
   }
 }
 
+async function handleDeleteProject(id){
+
+  //delete from db
+  const res = await fetch(`/api/projects/${id}`,{
+    method: "DELETE"
+  })
+
+  const update = await res.json()
+  console.log("update", update)
+
+  //remove from state
+    if (res.ok){
+    setData(prev => ({
+      ...prev, // keep other keys: all, goals, regularTodos
+      projects: prev.projects.filter(p => p._id !== id )
+    }));
+  }
+}
 
 
   return (
@@ -346,19 +363,15 @@ async function handleSaveProjectName(id, newName) {
                 <h2 className="font-bold text-lg mb-3 text-red-800">{p.icon} 
                   
                   {p.isEditing? (
-                    // <input 
-                    //   type="text"
-                    //   value={p.editName}
-                    //   onChange={(e)=> 
-                    //     setProjects((prev) => 
-                    //       prev.map((proj)=> proj._id === p._id ? { ...proj, editName: e.target.value} : proj)
-                    //     )
-                    //   }
-                      
-                    // />
-                      "EDITING PROJECT"
 
-                  ) : "PROJECT NAME"
+                    <input 
+                      type="text"
+                      value={editProjectName}
+                      onChange={(e)=> setProjectName(e.target.value)}
+                      autoFocus 
+                    />
+
+                  ) : p.name
                   }
                   
                 </h2>
@@ -366,10 +379,10 @@ async function handleSaveProjectName(id, newName) {
                   {p.isEditing? (
 
                     <div className="flex gap-2">
-                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1"  >save</button>
+                      <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> handleSaveProjectName(p._id, editProjectName)}>save</button>
                       {/* <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >save</button> */}
 
-                      <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">cancel</button>
+                      <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1" onClick={()=> cancelEdit(p._id)}>cancel</button>
                     </div>
 
 
@@ -379,7 +392,7 @@ async function handleSaveProjectName(id, newName) {
                       <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={() => startEdit(p._id, p.name, p)} >edit</button>
                       {/* <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >edit</button> */}
 
-                      <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">delete</button>
+                      <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1" onClick={()=> handleDeleteProject(p._id)}>delete</button>
                     </div>
                   )}
               </div>
