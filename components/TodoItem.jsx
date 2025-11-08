@@ -9,7 +9,7 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal, pro
   const handleSave = (e) => {
     e.preventDefault()
     if (text.trim() && text !== todo.text) {
-      onEdit(todo._id, text);
+      onEdit(todo._id, text, todo.project);
     }
     setIsEditing(false);
   };
