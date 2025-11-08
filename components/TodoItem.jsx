@@ -48,7 +48,7 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal, pro
           className={`flex-1 cursor-pointer ${
             todo.completed ? "line-through text-gray-400" : ""
           }`}
-          onClick={onToggle}
+          onClick={() => onToggle(todo._id, todo.project)}
         >
           {todo.text}
         </span>

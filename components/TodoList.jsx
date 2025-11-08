@@ -14,24 +14,20 @@ export default function TodoList({ date }) {
   const [data, setData] = useState()
 
 
-  
   // Fetch todos whenever the date changes
   useEffect(() => {
     if(user.loading) return
 
     async function fetchData() {
-      
       setLoading(true)
 
       const [ todoRes, projectRes ] = await Promise.all([
-
         fetch(`/api/todos/${date}`, {
           headers: {
             "Content-Type": "application/json",
             "x-anon-id": user.user.anonId,
           },
         }),
-
         fetch(`/api/projects?user=${user.user._id}`)
       ]);
 
@@ -65,11 +61,12 @@ export default function TodoList({ date }) {
     }
     
     fetchData()
-    
   }, [date, user]);
 
 
   // TODO FUNCTIONS 
+
+  // make new todo 
   async function addTodo(e) {
     e.preventDefault();
     if (!input.trim()) return;
@@ -91,9 +88,9 @@ export default function TodoList({ date }) {
     setInput("");
   }
 
+  // toggle todo completed 
   async function toggleTodo(todoId, projectId) {
     console.log( "HIT", todoId, projectId)
-
 
     const res = await fetch(`/api/todos/${date}`, {
       method: "PATCH",
@@ -104,9 +101,29 @@ export default function TodoList({ date }) {
       body: JSON.stringify({ todoId }),
     });
     const data = await res.json();
-    // console.log(data)
+    console.log(data)
 
     // update state
+    setData( prev=> {
+
+      let newgoals = prev.goals.map( g => g._id === todoId? {...g, completed: !g.completed } : g )
+      let newTodos = prev.todos;
+      let newProjects = prev.projects;
+
+      if ( projectId ){
+        newProjects = newProjects.map( p => p._id === projectId? { ...p, todos: p.todos.map( pt => pt._id === todoId? { ...pt, completed: !pt.completed } : pt )} : p)
+      }
+      else {
+        newTodos = newTodos.map( t => t._id === todoId? { ...t, completed: !t.completed } : t)
+      }
+
+      return {
+        ...prev,
+        goals: newgoals,
+        projects: newProjects,
+        todos: newTodos
+      }
+    })
 
   }
 
@@ -185,7 +202,7 @@ export default function TodoList({ date }) {
   };
 
   const onChangeProject = async(todoId, projectId, oldProjectId) => {
-    
+
     console.log(todoId, projectId, oldProjectId)
     const res = await fetch(`/api/todos/${date}/project`, {
       method: "PATCH",
@@ -355,7 +372,7 @@ async function handleDeleteProject(id){
               <TodoItem
                 key={t._id}
                 todo={t}
-                onToggle={() => toggleTodo(t._id)}
+                onToggle={toggleTodo}
                 onDelete={() => onDelete(t._id)}
                 onEdit={onEdit}
                 onGoal={handleGoal}
@@ -419,7 +436,7 @@ async function handleDeleteProject(id){
                 <TodoItem
                   key={t._id}
                   todo={t}
-                  onToggle={() => toggleTodo(t._id)}
+                  onToggle={toggleTodo}
                   onDelete={() => onDelete(t._id)}
                   onEdit={onEdit}
                   onGoal={handleGoal}
@@ -443,7 +460,7 @@ async function handleDeleteProject(id){
               <TodoItem
                 key={t._id}
                 todo={t}
-                onToggle={() => toggleTodo(t._id)}
+                onToggle={toggleTodo}
                 onDelete={() => onDelete(t._id)}
                 onEdit={onEdit}
                 onGoal={handleGoal}
