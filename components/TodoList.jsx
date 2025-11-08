@@ -191,16 +191,40 @@ export default function TodoList({ date }) {
       body: JSON.stringify({ todoId, projectId }),
     });
 
-    const data = await res.json()
+    const { todo } = await res.json()
     console.log("onChangeProject", data)
 
     // update state 
     setData( prev => {
 
       // filter old project 
-
+      // const filteredProject = prev.projects.map( p => p._id === oldProjectId? { ...p, todos: todos.filter( pt => pt !== todoId)}: p)
       // append new project 
+      // const updatedProject = prev.projects.map( p => p._id === projectId? { ...p, todos: [ ...todos, todo]} : p)
       // return new state 
+
+      return {
+        ...prev,
+        projects: prev.projects.map( p => {
+
+              // remove from old project
+              if (p._id === oldProjectId) {
+                return { ...p, todos: p.todos.filter(t => t._id !== todo._id) };
+              }
+
+              // add to new project
+              if (p._id === projectId) {
+                return { ...p, todos: [...p.todos, todo] };
+              }
+
+              return p;
+        }),
+        todos: !oldProjectId? prev.todos.filter( pt => pt._id !== todoId) : prev.todos
+        
+          
+          
+          // p._id === projectId? {...p, todos: [ ...p.todos, todo]} : p )
+      }
 
 
     })
@@ -397,7 +421,7 @@ async function handleDeleteProject(id){
                   onDelete={() => onDelete(t._id)}
                   onEdit={onEdit}
                   onGoal={handleGoal}
-                  projects={projects}
+                  projects={data.projects}
                   onChangeProject={onChangeProject}
                 />
               ))}
