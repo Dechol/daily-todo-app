@@ -65,7 +65,6 @@ export default function TodoList({ date }) {
 
 
   // TODO FUNCTIONS 
-
   // make new todo 
   async function addTodo(e) {
     e.preventDefault();
@@ -90,7 +89,6 @@ export default function TodoList({ date }) {
 
   // toggle todo completed 
   async function toggleTodo(todoId, projectId) {
-    console.log( "HIT", todoId, projectId)
 
     const res = await fetch(`/api/todos/${date}`, {
       method: "PATCH",
@@ -101,7 +99,6 @@ export default function TodoList({ date }) {
       body: JSON.stringify({ todoId }),
     });
     const data = await res.json();
-    console.log(data)
 
     // update state
     setData( prev=> {
@@ -127,7 +124,8 @@ export default function TodoList({ date }) {
 
   }
 
-  async function onDelete(todoId){
+  // delete a todo 
+  async function onDelete( todoId, projectId ){
 
     const res = await fetch(`/api/todos/${date}`, {
       method: "DELETE",
@@ -141,8 +139,29 @@ export default function TodoList({ date }) {
     console.log(data)
 
     // update state 
+    setData( prev => {
+
+      let newGoals = prev.goals.filter( g => g._id !== todoId)
+      let newProjects = prev.projects;
+      let newTodos = prev.todos;
+
+      if ( projectId ){
+        newProjects = newProjects.map( p => p._id === projectId? { ...p, todos: p.todos.filter( pt => pt._id !== todoId)} : p )
+      }
+      if( !projectId ) {
+        newTodos = newTodos.filter( t => t._id !== todoId)
+      }
+
+      return {
+        ...prev,
+        goals: newGoals,
+        projects: newProjects,
+        todos: newTodos
+      }
+    })
   }
 
+  //edit the text of a todo
   async function onEdit(todoId, text){
 
     const res = await fetch(`/api/todos/${date}`, {
@@ -373,7 +392,7 @@ async function handleDeleteProject(id){
                 key={t._id}
                 todo={t}
                 onToggle={toggleTodo}
-                onDelete={() => onDelete(t._id)}
+                onDelete={onDelete}
                 onEdit={onEdit}
                 onGoal={handleGoal}
                 projects={projects}
@@ -437,7 +456,7 @@ async function handleDeleteProject(id){
                   key={t._id}
                   todo={t}
                   onToggle={toggleTodo}
-                  onDelete={() => onDelete(t._id)}
+                  onDelete={onDelete}
                   onEdit={onEdit}
                   onGoal={handleGoal}
                   projects={data.projects}
@@ -461,7 +480,7 @@ async function handleDeleteProject(id){
                 key={t._id}
                 todo={t}
                 onToggle={toggleTodo}
-                onDelete={() => onDelete(t._id)}
+                onDelete={onDelete}
                 onEdit={onEdit}
                 onGoal={handleGoal}
                 projects={data.projects}

@@ -91,7 +91,7 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal, pro
         </button>
 
         <button
-          onClick={() => onDelete(todo._id)}
+          onClick={() => onDelete( todo._id, todo.project )}
           className="text-sm bg-red-200 text-red-800 px-2 py-1 rounded hover:bg-red-300"
         >
           Delete
