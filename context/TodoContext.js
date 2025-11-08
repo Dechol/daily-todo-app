@@ -3,7 +3,6 @@ import { createContext, useContext, useState } from "react";
 
 const TodoContext = createContext();
 
-
 // EXAMPLE - TODO DATA STRUCTURE
 //   const [data, setData] = useState({
 //     all: [],
@@ -14,7 +13,6 @@ const TodoContext = createContext();
 
 export function TodoProvider({ children }) {
   const [data, setData] = useState(null);
-
 
 
     async function fetchData(date, userAnonId, userId) {
@@ -56,31 +54,31 @@ export function TodoProvider({ children }) {
         })
     }
 
+  async function createProject( userId ){
+    const res = await fetch("/api/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user: userId,
+        name: "New Project",
+        description: "Tasks for my app launch",
+      }),
+    });
 
-  // 🔹 Add helper functions here (optional)
-  function addTodo(todo) {
-    setData((prev) => ({
-      ...prev,
-      all: [...prev.all, todo],
-      regularTodos: [...prev.regularTodos, todo],
-    }));
+    const data = await res.json()
+
+    setData( prev => {
+
+      return {
+        ...prev,
+        projects: [ ...prev.projects, data]
+      }
+    })
   }
-
-  function updateProjectName(projectId, newName) {
-    setData((prev) => ({
-      ...prev,
-      projects: prev.projects.map((p) =>
-        p._id === projectId ? { ...p, name: newName } : p
-      ),
-    }));
-  }
-
-
-
   
 
   return (
-    <TodoContext.Provider value={{ data, setData, fetchData, addTodo, updateProjectName }}>
+    <TodoContext.Provider value={{ data, setData, fetchData, createProject }}>
       {children}
     </TodoContext.Provider>
   );

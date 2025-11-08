@@ -1,10 +1,13 @@
 "use client"
 
+import { useTodos } from "@/context/TodoContext"
 import { useUser } from "@/context/UserContext"
 import Link from "next/link"
 
 export default function Nav(){
     const {user, loading} = useUser()
+    const { createProject } = useTodos()
+
     console.log(user)
 
     async function logout() {
@@ -20,22 +23,6 @@ export default function Nav(){
       }
     }
 
-    async function createProject(){
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user: user._id,
-          name: "New Project",
-          description: "Tasks for my app launch",
-        }),
-      });
-
-      console.log(res)
-      const data = await res.json()
-      console.log(data)
-
-    }
 
     if(loading) return <>loading...</>
 
@@ -81,7 +68,7 @@ export default function Nav(){
 
             {/* Right side: Sign In */}
             <div>
-              <button onClick={createProject} className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-400 mr-1" > 
+              <button onClick={() => createProject(user._id)} className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-400 mr-1" > 
                 New Project 
               </button>
 
