@@ -2,64 +2,25 @@
 import { useEffect, useState } from "react";
 import TodoItem from "./TodoItem";
 import { useUser } from "@/context/UserContext";
+import { useTodos } from "@/context/TodoContext";
 
 export default function TodoList({ date }) {
   const user = useUser()
+  const { data, setData, fetchData } = useTodos()
   const [todos, setTodos] = useState([]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([])
   const [editProjectName, setProjectName] = useState();
-  const [data, setData] = useState()
+  // const [data, setData] = useState()
 
+  console.log(data)
 
   // Fetch todos whenever the date changes
   useEffect(() => {
+
     if(user.loading) return
+    fetchData( date, user.user.anonId, user.user._id)
 
-    async function fetchData() {
-      setLoading(true)
-
-      const [ todoRes, projectRes ] = await Promise.all([
-        fetch(`/api/todos/${date}`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-anon-id": user.user.anonId,
-          },
-        }),
-        fetch(`/api/projects?user=${user.user._id}`)
-      ]);
-
-      const [ todoData, projectData ] = await Promise.all([
-        todoRes.json(),
-        projectRes.json()        
-      ])
-
-      console.log("todoData", todoData)
-      console.log("projectData", projectData)
-
-      // organise data 
-      const goals = todoData.filter(t => t.isGoal)
-      const todosWithProjects = todoData.filter(t => t.project)
-      const todosWithoutProjects = todoData.filter(t => !t.project)
-
-      // organise todos with projects
-      const projectsWithTodos = projectData.map( p=> ({
-        ...p,
-        todos: todosWithProjects.filter(t=> t.project === p._id)
-      }))
-
-      setData({
-        all: todoData,
-        goals,
-        projects: projectsWithTodos,
-        todos: todosWithoutProjects
-      })
-
-      setLoading(false)
-    }
-    
-    fetchData()
   }, [date, user]);
 
 

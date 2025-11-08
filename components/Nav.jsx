@@ -79,8 +79,6 @@ export default function Nav(){
             {/* Left side: anonId (dev only) */}
             <div id="anon-id" className="text-xs text-gray-500 font-mono">Welcome back, {user.email}</div>
 
-
-
             {/* Right side: Sign In */}
             <div>
               <button onClick={createProject} className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-400 mr-1" > 

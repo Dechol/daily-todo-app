@@ -4,6 +4,7 @@ import Link from "next/link";
 import GuestInit from "@/components/GuestInit";
 import { UserProvider, useUser } from "@/context/UserContext";
 import Nav from "@/components/Nav";
+import { TodoProvider } from "@/context/TodoContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,11 +27,12 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} >
         
         <UserProvider >
-          <Nav />
+          <TodoProvider>
 
-          {/* <GuestInit /> */}
+            <Nav />
+            {children}
 
-          {children}
+          </TodoProvider>
         </UserProvider>
       </body>
     </html>
