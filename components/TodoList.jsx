@@ -43,55 +43,33 @@ export default function TodoList({ date }) {
       console.log("todoData", todoData)
       console.log("projectData", projectData)
 
-      // setProjects(projectData)
-
       // organise data 
       const goals = todoData.filter(t => t.isGoal)
       const todosWithProjects = todoData.filter(t => t.project)
       const todosWithoutProjects = todoData.filter(t => !t.project)
 
-      // const todosByProject = todoData.map()
-      // const projects = projectData
-      // organise projects 
-      // const projectsWithTodos 
+      // organise todos with projects
+      const projectsWithTodos = projectData.map( p=> ({
+        ...p,
+        todos: todosWithProjects.filter(t=> t.project === p._id)
+      }))
 
       setData({
         all: todoData,
         goals,
-        projects: projectData,
+        projects: projectsWithTodos,
         todos: todosWithoutProjects
       })
 
+      setLoading(false)
     }
     
     fetchData()
     
-    async function fetchTodos() {
-      setLoading(true);
-      const res = await fetch(`/api/todos/${date}`, {
-        headers: {
-          "Content-Type": "application/json",
-          "x-anon-id": user.user.anonId,
-        },
-      });
-      const data = await res.json();
-      console.log("todos", todos)
-      
-      setTodos(data || []);
-      setLoading(false);
-    }
-
-    async function fetchProjects(){
-      const res = await fetch(`/api/projects?user=${user.user._id}`);
-      const data = await res.json();
-      console.log("projects", projects)
-      setProjects(data)
-    }
-
-    // fetchTodos();
-    // fetchProjects()
   }, [date, user]);
 
+
+  // TODO FUNCTIONS 
   async function addTodo(e) {
     e.preventDefault();
     if (!input.trim()) return;
@@ -104,11 +82,6 @@ export default function TodoList({ date }) {
       body: JSON.stringify({ text: input }),
     });
     const data = await res.json();
-    console.log(data)
-    
-    // update state
-    
-    // setTodos((prev) => [...prev, data]);
 
     setData( prev=> ({
       ...prev,
@@ -118,7 +91,10 @@ export default function TodoList({ date }) {
     setInput("");
   }
 
-  async function toggleTodo(todoId) {
+  async function toggleTodo(todoId, projectId) {
+    console.log( "HIT", todoId, projectId)
+
+
     const res = await fetch(`/api/todos/${date}`, {
       method: "PATCH",
       headers: {
@@ -128,12 +104,9 @@ export default function TodoList({ date }) {
       body: JSON.stringify({ todoId }),
     });
     const data = await res.json();
-    console.log(data)
+    // console.log(data)
 
     // update state
-    // setTodos((prev) =>
-    //   prev.map((t) => (t._id === data._id ? data : t))
-    // );
 
   }
 
@@ -149,9 +122,8 @@ export default function TodoList({ date }) {
     });
     const data = await res.json();
     console.log(data)
-    setTodos((prev) =>
-      prev.filter(t => t._id !== todoId)
-    );
+
+    // update state 
   }
 
   async function onEdit(todoId, text){
@@ -166,28 +138,53 @@ export default function TodoList({ date }) {
     });
     const data = await res.json();
     console.log(data)
-    setTodos((prev) =>
-      prev.map(t => t._id === data._id? data: t)
-    );
+
+    // update state 
   }
 
-  const handleGoal = async (todoId) => {
+  const handleGoal = async (todoId, projectId) => {
+
+    console.log(todoId, projectId)
     const res = await fetch(`/api/todos/${date}/goal`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ todoId }),
     });
 
-    if (res.ok) {
-      const { todo } = await res.json();
-      console.log(todo)
-      setTodos((prev) =>
-        prev.map((t) => (t._id === todo._id ? { ...t, isGoal: todo.isGoal } : t))
-      );
-    }
+    const { todo } = await res.json();
+    console.log(todo)
+
+    // update state 
+    setData( prev => {
+
+      // update goals 
+      const updatedGoals = todo.isGoal? [...prev.goals, todo] : prev.goals.filter( g => g._id !== todo._id)
+
+      if( !projectId ){
+
+        return{
+          ...prev,
+          goals: updatedGoals,
+          todos: prev.todos.map( t => t._id === todoId? { ...t, isGoal: !t.isGoal } : t)
+        }
+      } else {
+
+        return {
+          ...prev,
+          goals: updatedGoals,
+          projects: prev.projects.map( p => 
+            p._id !== projectId? 
+              p : ({
+                ...p,
+                todos: p.todos.map( pt => pt._id === todoId ? {...pt, isGoal: !pt.isGoal } : pt)
+              }
+          ))  
+        }
+      }
+    })
   };
 
-  const onChangeProject = async(todoId, projectId) => {
+  const onChangeProject = async(todoId, projectId, oldProjectId) => {
     const res = await fetch(`/api/todos/${date}/project`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -196,6 +193,17 @@ export default function TodoList({ date }) {
 
     const data = await res.json()
     console.log("onChangeProject", data)
+
+    // update state 
+    setData( prev => {
+
+      // filter old project 
+
+      // append new project 
+      // return new state 
+
+
+    })
   }
 
 
@@ -335,24 +343,7 @@ async function handleDeleteProject(id){
       )}
 
 
-      {/* PROJECTS SECTION  */}
-      {/* {projects.length > 0 && (
-        <section >
-          {projects.map((p, index) => (
-            <div key={index} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6 flex justify-between">
-              <h2 className="font-bold text-lg mb-3 text-red-800">{p.icon} {p.name}</h2>
-              <div className="flex gap-2">
-                <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1">edit</button>
-                <button className="text-sm rounded shadow-sm bg-purple-200 text-black px-2 py-1">delete</button>
-
-              </div>
-
-            </div>
-          ))}
-        </section>
-      )} */}
-
-      {/* TODOSBY PROJECT SECTION  */}
+      {/* PROJECT DATA SECTION  */}
       {data && (
         <section >
           {data.projects.map( (p) => (
@@ -397,7 +388,7 @@ async function handleDeleteProject(id){
                   )}
               </div>
 
-              {p.todos.length > 0 && p.todos.map((t, i) => (
+              {p.todos && p.todos.map((t) => (
 
                 <TodoItem
                   key={t._id}
@@ -417,7 +408,7 @@ async function handleDeleteProject(id){
       )}
 
 
-      {/* REGULAR TODOS SECTION  */}
+      {/* TODOS DATA SECTION  */}
       <section className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
         <h2 className="font-semibold text-gray-700 mb-3">🗒️ Tasks</h2>
         {data.todos ? (
@@ -430,7 +421,7 @@ async function handleDeleteProject(id){
                 onDelete={() => onDelete(t._id)}
                 onEdit={onEdit}
                 onGoal={handleGoal}
-                projects={projects}
+                projects={data.projects}
                 onChangeProject={onChangeProject}
               />
             ))}

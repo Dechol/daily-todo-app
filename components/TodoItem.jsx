@@ -18,7 +18,7 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal, pro
     e.preventDefault()
     console.log(e.target.value)
 
-    onChangeProject(todo._id, e.target.value )
+    onChangeProject(todo._id, e.target.value, todo.project )
 
     // pass a onChangeProject function call here - to update db and state 
   }
@@ -83,7 +83,7 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal, pro
         </select>
 
         <button
-          onClick={() => onGoal(todo._id)}
+          onClick={() => onGoal(todo._id, todo.project)}
           className={`text-sm px-2 py-1 rounded ${
             todo.isGoal ? "bg-yellow-400 text-white" : "bg-gray-100"
           }`}
