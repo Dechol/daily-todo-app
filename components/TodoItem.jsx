@@ -71,14 +71,13 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete, onGoal, pro
           </button>
         )}
 
-        {/* <label htmlFor="selectProject">Select Project</label> */}
-        <select id="selectProject" className="max-w-[20px]" onChange={handleChangeProject}>
+        <select id="selectProject" className="max-w-[20px]" onChange={handleChangeProject} defaultValue={todo.project || ""}>
           
-          <option value="hi">old project</option>
           {projects && projects.map((p, i) => (
             <option key={i} value={p._id}>{p.name}</option>
-
+            
           ))}
+          <option value="" ></option>
 
         </select>
 

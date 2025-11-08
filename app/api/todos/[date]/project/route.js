@@ -1,6 +1,7 @@
 // app/api/todos/[date]/goal/route.js
 import {connectDB} from "@/lib/mongodb";
 import Todo from "@/models/Todo";
+import { NextResponse } from "next/server";
 
 export async function PATCH(req) {
     try {  
@@ -8,16 +9,16 @@ export async function PATCH(req) {
         const { todoId, projectId } = await req.json();
 
         const todo = await Todo.findById( todoId );
-        if (!todo) return Response.json({ error: "Todo not found" }, { status: 404 });
+        if (!todo) return NextResponse.json({ error: "Todo not found" }, { status: 404 });
 
         // Toggle goal status
-        todo.project = projectId
+        todo.project = projectId || null
         await todo.save();
 
-        return Response.json({ success: true, todo });
+        return NextResponse.json({ success: true, todo });
     } catch(error) {
         console.log(error)
-        return Response.json({ error });
+        return NextResponse.json({ success: false, error: "server error" }, { status: 500 });
 
     }
 }

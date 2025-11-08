@@ -185,6 +185,8 @@ export default function TodoList({ date }) {
   };
 
   const onChangeProject = async(todoId, projectId, oldProjectId) => {
+    
+    console.log(todoId, projectId, oldProjectId)
     const res = await fetch(`/api/todos/${date}/project`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -192,16 +194,22 @@ export default function TodoList({ date }) {
     });
 
     const { todo } = await res.json()
-    console.log("onChangeProject", data)
+    console.log("onChangeProject", todo)
 
     // update state 
     setData( prev => {
 
       // filter old project 
-      // const filteredProject = prev.projects.map( p => p._id === oldProjectId? { ...p, todos: todos.filter( pt => pt !== todoId)}: p)
       // append new project 
-      // const updatedProject = prev.projects.map( p => p._id === projectId? { ...p, todos: [ ...todos, todo]} : p)
-      // return new state 
+      // return new state
+
+      let newTodos = prev.todos;
+      if ( !projectId ){
+        newTodos = [ ...newTodos, todo]
+      }
+      if ( !oldProjectId ){
+        newTodos = newTodos.filter( t => t._id !== todoId)
+      }
 
       return {
         ...prev,
@@ -209,7 +217,7 @@ export default function TodoList({ date }) {
 
               // remove from old project
               if (p._id === oldProjectId) {
-                return { ...p, todos: p.todos.filter(t => t._id !== todo._id) };
+                return { ...p, todos: p.todos.filter(t => t._id !== todoId) };
               }
 
               // add to new project
@@ -219,14 +227,8 @@ export default function TodoList({ date }) {
 
               return p;
         }),
-        todos: !oldProjectId? prev.todos.filter( pt => pt._id !== todoId) : prev.todos
-        
-          
-          
-          // p._id === projectId? {...p, todos: [ ...p.todos, todo]} : p )
+        todos: newTodos
       }
-
-
     })
   }
 
