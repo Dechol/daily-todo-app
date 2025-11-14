@@ -3,15 +3,20 @@ import { useEffect, useState } from "react";
 import TodoItem from "./TodoItem";
 import { useUser } from "@/context/UserContext";
 import { useTodos } from "@/context/TodoContext";
+import { useUI } from "@/context/UiContext";
 
 export default function TodoList({ date }) {
   const user = useUser()
   const { data, setData, fetchData } = useTodos()
-  const [todos, setTodos] = useState([]);
+  const { hiddenProjects, toggleProjectVisibility } = useUI()
+
+  // const [todos, setTodos] = useState([]);
   const [input, setInput] = useState("");
-  const [projects, setProjects] = useState([])
+  // const [projects, setProjects] = useState([])
   const [editProjectName, setProjectName] = useState();
   // const [data, setData] = useState()
+  // const [hiddenProjects, setHiddenProjects] = useState({});
+
 
   console.log(data)
 
@@ -242,8 +247,8 @@ export default function TodoList({ date }) {
     })
   }
 
-  const completed = todos.filter(t => t.completed).length;
-  const total = todos.length;
+  // const completed = todos.filter(t => t.completed).length || 0;
+  // const total = todos.length || 0;
 
   // PROJECT FUNCTIONS 
   // Start editing a project name
@@ -314,6 +319,20 @@ export default function TodoList({ date }) {
     }
   }
 
+  // STATE ONLY 
+  // toggleHideProject
+//   function toggleHideProject(id) {
+//   setHiddenProjects(prev => ({
+//     ...prev,
+//     [id]: !prev[id]
+//   }));
+// }
+
+  const visibleProjects = data.projects?.filter(
+    (p) => !hiddenProjects.includes(p._id)
+  );
+
+
 
   return (
       
@@ -322,9 +341,7 @@ export default function TodoList({ date }) {
     <header className="text-center my-6">
     <h1 className="text-2xl font-bold">🧘 My Daily Tracker</h1>
     <p className="text-gray-500 text-sm">Plan your day, focus on what matters most.</p>
-    <p className="text-sm text-gray-500 mt-3">
-    ✅ {completed}/{total} tasks done
-    </p>
+    {/* <p className="text-sm text-gray-500 mt-3">✅ {completed}/{total} tasks done</p> */}
 
     </header>
 
@@ -363,7 +380,7 @@ export default function TodoList({ date }) {
                     onDelete={onDelete}
                     onEdit={onEdit}
                     onGoal={handleGoal}
-                    projects={projects}
+                    // projects={projects}
                     onChangeProject={onChangeProject}
 
                   />
@@ -374,9 +391,10 @@ export default function TodoList({ date }) {
 
 
           {/* PROJECT DATA SECTION  */}
-          {data && (
+          {visibleProjects && (
             <section >
-              {data.projects.map( (p) => (
+              {visibleProjects.map( (p) => (
+
                 <div key={p._id} className="bg-red-50 border border-red-100 rounded-xl p-4 shadow-sm mb-6">
 
                   {/* project details section - icon & name  */}
@@ -410,6 +428,14 @@ export default function TodoList({ date }) {
                       ):(
                         
                         <div className="flex gap-2">
+
+                          <button
+                            onClick={() => toggleProjectVisibility(p._id)}
+                            className="text-xs text-red-500 hover:underline"
+                          >
+                            {hiddenProjects[p._id] ? "Show" : "Hide"}
+                          </button>
+
                           <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={() => startEdit(p._id, p.name, p)} >edit</button>
                           {/* <button className="text-sm rounded shadow-sm bg-green-200 text-black px-2 py-1" onClick={()=> setIsEditing(!isEditing)} >edit</button> */}
 

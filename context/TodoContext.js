@@ -12,7 +12,7 @@ const TodoContext = createContext();
 //   });
 
 export function TodoProvider({ children }) {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({});
 
 
     async function fetchData(date, userAnonId, userId) {

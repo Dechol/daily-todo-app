@@ -6,6 +6,7 @@ import { UserProvider, useUser } from "@/context/UserContext";
 import Nav from "@/components/Nav";
 import { TodoProvider } from "@/context/TodoContext";
 import Sidebar from "@/components/Sidebar";
+import { UIProvider } from "@/context/UiContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,17 +30,20 @@ export default function RootLayout({ children }) {
         
         <UserProvider >
           <TodoProvider>
+            <UIProvider >
 
-            <Nav />
-            <div className="flex h-[calc(100vh-60px)]" >
-              <Sidebar />
-              <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+              <Nav />
+              <div className="flex h-[calc(100vh-60px)]" >
 
-                {children}
-              </main>
+                <Sidebar />
+                <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
 
-            </div>
+                  {children}
+                </main>
+                
+              </div>
 
+            </UIProvider>
           </TodoProvider>
         </UserProvider>
       </body>
