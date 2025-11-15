@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,8 +38,22 @@ export function UserProvider({ children }) {
     initUser();
   }, []);
 
+
+    async function logout() {
+    const res = await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+    const data = await res.json();
+
+    if (data.status === "logged_out") {
+      // Optionally reload the page or redirect
+      localStorage.removeItem("dailysGuestId")
+      window.location.reload();
+    }
+  }
+
   return (
-    <UserContext.Provider value={{ user, setUser, loading }}>
+    <UserContext.Provider value={{ user, setUser, loading, logout }}>
       {children}
     </UserContext.Provider>
   );

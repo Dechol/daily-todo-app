@@ -1,14 +1,71 @@
 "use client";
 
 import { useTodos } from "@/context/TodoContext";
-import { Plus, ListTodo, Folder } from "lucide-react";
+import { useUser } from "@/context/UserContext";
+import { Plus, ListTodo, Folder, LogOut, LogIn, UserPlus2 } from "lucide-react";
 
-export default function Sidebar({ onNewProject, onNewTodo, onSelectProject }) {
-  const { data } = useTodos();
+export default function Sidebar({ onNewProject, onSelectProject }) {
+  const {user, loading, logout} = useUser()
+  const { data, createProject } = useTodos();
   const projects = data?.projects || [];
+
+  console.log(user)
 
   return (
     <aside className="w-64 h-full bg-white border-r shadow-sm p-4 flex flex-col">
+
+      {user.email? (
+        <div>
+          <p>welcome back {user.email}</p>
+                  <button
+          onClick={logout}
+          className="
+            flex items-center justify-between
+            w-full px-3 py-2
+            border border-gray-300
+            text-gray-800 text-sm font-medium
+            rounded-lg hover:bg-gray-50
+          "
+        >
+          <span>Log Out</span>
+          <LogOut className="h-4 w-4" />
+        </button>
+        </div>
+
+      ) : (
+        <div>
+          <p>{user.anonId}</p>
+                  <button
+          onClick={logout}
+          className="
+            flex items-center justify-between
+            w-full px-3 py-2
+            border border-gray-300
+            text-gray-800 text-sm font-medium
+            rounded-lg hover:bg-gray-50
+          "
+        >
+          <span>Create Account</span>
+          <UserPlus2 className="h-4 w-4" />
+        </button>
+        <button
+          onClick={logout}
+          className="
+            flex items-center justify-between
+            w-full px-3 py-2
+            border border-gray-300
+            text-gray-800 text-sm font-medium
+            rounded-lg hover:bg-gray-50
+          "
+        >
+          <span>Log In</span>
+          <LogIn className="h-4 w-4" />
+        </button>
+
+        </div>
+        
+      )}
+
       
       {/* Title */}
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Projects</h2>
@@ -42,7 +99,7 @@ export default function Sidebar({ onNewProject, onNewTodo, onSelectProject }) {
       {/* Action Buttons */}
       <div className="mt-4 space-y-2">
         <button
-          onClick={onNewProject}
+          onClick={()=> createProject(user._id)}
           className="
             flex items-center justify-between
             w-full px-3 py-2
@@ -55,7 +112,7 @@ export default function Sidebar({ onNewProject, onNewTodo, onSelectProject }) {
         </button>
 
         <button
-          onClick={onNewTodo}
+          onClick={()=> createProject(user._id)}
           className="
             flex items-center justify-between
             w-full px-3 py-2
@@ -67,6 +124,8 @@ export default function Sidebar({ onNewProject, onNewTodo, onSelectProject }) {
           <span>New Todo</span>
           <ListTodo className="h-4 w-4" />
         </button>
+
+
       </div>
     </aside>
   );

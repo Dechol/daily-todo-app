@@ -5,24 +5,10 @@ import { useUser } from "@/context/UserContext"
 import Link from "next/link"
 
 export default function Nav(){
-    const {user, loading} = useUser()
+    const {user, loading, logout} = useUser()
     const { createProject } = useTodos()
 
     console.log(user)
-
-    async function logout() {
-      const res = await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-      const data = await res.json();
-
-      if (data.status === "logged_out") {
-        // Optionally reload the page or redirect
-        localStorage.removeItem("dailysGuestId")
-        window.location.reload();
-      }
-    }
-
 
     if(loading) return <>loading...</>
 
@@ -82,5 +68,7 @@ export default function Nav(){
       </>
 
     )
+
+    // return null
 
 }
